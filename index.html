@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QCM APS Premium</title>
+  <style>
+    :root{
+      --bg:#f3f5f9;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --blue:#1f73d8;
+      --blue-dark:#155bb0;
+      --green:#1fb34a;
+      --red:#e53935;
+      --gold:#f2c35b;
+      --border:#d9dee7;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#f5f7fb 0%, #eef2f8 100%);
+      color:var(--text);
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:24px auto;
+      padding:0 18px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      padding:18px 22px;
+      border-bottom:1px solid #e8ecf3;
+      background:#fbfcfe;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:28px;
+      font-weight:700;
+    }
+
+    .brand .icon{
+      width:48px;
+      height:48px;
+      border-radius:14px;
+      background:linear-gradient(180deg, #2f86ee, #1f73d8);
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      box-shadow:0 8px 20px rgba(31,115,216,.25);
+    }
+
+    .meta{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      padding:10px 16px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:16px;
+      border:1px solid var(--border);
+      background:#fff;
+    }
+
+    .pill.question-no{
+      background:#eef5ff;
+      color:#1251a0;
+      border-color:#cfe1ff;
+    }
+
+    .pill.timer{
+      background:#fff7e7;
+      color:#6f4d00;
+      border-color:#f2dfb0;
+      min-width:110px;
+      text-align:center;
+    }
+
+    .content{
+      padding:30px 26px 28px;
+    }
+
+    .timer-zone{
+      margin:4px auto 24px;
+      max-width:900px;
+    }
+
+    .timer-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-weight:700;
+      margin-bottom:10px;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .timer-label{
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    .timer-value{
+      color:#6f4d00;
+      font-size:24px;
+      font-weight:800;
+    }
+
+    .progress-track{
+      width:100%;
+      height:18px;
+      border-radius:999px;
+      background:#efe3c8;
+      overflow:hidden;
+      border:1px solid #ead7ac;
+    }
+
+    .progress-fill{
+      height:100%;
+      width:100%;
+      background:linear-gradient(90deg, #f2c35b 0%, #d89b19 100%);
+      transition:width 1s linear;
+    }
+
+    .question{
+      text-align:center;
+      font-size:28px;
+      font-weight:800;
+      line-height:1.3;
+      margin:12px auto 26px;
+      max-width:900px;
+    }
+
+    .answers{
+      max-width:980px;
+      margin:0 auto;
+      display:grid;
+      gap:16px;
+    }
+
+    .answer-row{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) 280px;
+      gap:18px;
+      align-items:center;
+    }
+
+    .answer-btn{
+      width:100%;
+      min-height:78px;
+      border:none;
+      border-radius:14px;
+      background:linear-gradient(180deg, var(--blue), var(--blue-dark));
+      color:white;
+      font-size:20px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 4px 12px rgba(31,115,216,.2);
+      transition:transform .15s ease, opacity .15s ease;
+      padding:16px 24px;
+    }
+
+    .answer-btn:hover{
+      transform:translateY(-1px);
+    }
+
+    .answer-btn:disabled{
+      cursor:not-allowed;
+    }
+
+    .answer-btn.correct{
+      background:linear-gradient(180deg, #25bf53, #189940);
+    }
+
+    .answer-btn.wrong{
+      background:linear-gradient(180deg, #f04d4a, #d9322f);
+    }
+
+    .answer-btn.neutral{
+      opacity:.75;
+    }
+
+    .answer-side{
+      min-height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      font-size:18px;
+      font-weight:800;
+      color:var(--green);
+      visibility:hidden;
+    }
+
+    .answer-side.show{
+      visibility:visible;
+    }
+
+    .answer-side .arrow{
+      font-size:28px;
+      margin-right:10px;
+      line-height:1;
+    }
+
+    .result-box{
+      max-width:980px;
+      margin:24px auto 0;
+      text-align:center;
+      min-height:74px;
+    }
+
+    .result{
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .result.good{ color:var(--green); }
+    .result.bad{ color:var(--red); }
+
+    .explanation{
+      font-size:17px;
+      color:#4b5563;
+      line-height:1.55;
+      max-width:900px;
+      margin:0 auto;
+    }
+
+    .actions{
+      text-align:center;
+      margin-top:26px;
+    }
+
+    .next-btn, .restart-btn{
+      border:none;
+      border-radius:14px;
+      background:#111827;
+      color:white;
+      font-size:18px;
+      font-weight:700;
+      padding:14px 26px;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(17,24,39,.18);
+    }
+
+    .next-btn:hover, .restart-btn:hover{
+      background:#000;
+    }
+
+    .final{
+      display:none;
+      padding:36px 28px 40px;
+      text-align:center;
+    }
+
+    .final h2{
+      font-size:38px;
+      margin:8px 0 16px;
+    }
+
+    .score-circle{
+      width:180px;
+      height:180px;
+      margin:18px auto 20px;
+      border-radius:50%;
+      background:conic-gradient(#25bf53 0deg, #25bf53 0deg, #e5e7eb 0deg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.08);
+    }
+
+    .score-inner{
+      width:130px;
+      height:130px;
+      border-radius:50%;
+      background:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:34px;
+      font-weight:800;
+    }
+
+    .final-score{
+      font-size:30px;
+      font-weight:800;
+      margin-bottom:10px;
+    }
+
+    .final-message{
+      font-size:20px;
+      color:#4b5563;
+      max-width:760px;
+      margin:0 auto 22px;
+      line-height:1.55;
+    }
+
+    @media (max-width: 900px){
+      .answer-row{
+        grid-template-columns:1fr;
+      }
+      .answer-side{
+        min-height:30px;
+        padding-left:8px;
+      }
+      .question{
+        font-size:24px;
+      }
+      .answer-btn{
+        font-size:18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" id="quizCard">
+      <div class="topbar">
+        <div class="brand">
+          <div class="icon">🎓</div>
+          <div>QCM APS Premium</div>
+        </div>
+        <div class="meta">
+          <div class="pill question-no" id="progress">Question 1 / 40</div>
+          <div class="pill timer" id="timerPill">60s</div>
+        </div>
+      </div>
+
+      <div class="content" id="quizScreen">
+        <div class="timer-zone">
+          <div class="timer-row">
+            <div class="timer-label">Temps restant</div>
+            <div class="timer-value" id="timerValue">60s</div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="timeBar"></div>
+          </div>
+        </div>
+
+        <div class="question" id="question"></div>
+
+        <div class="answers" id="answers"></div>
+
+        <div class="result-box">
+          <div class="result" id="result"></div>
+          <div class="explanation" id="explanation"></div>
+        </div>
+
+        <div class="actions" id="actionsDiv"></div>
+      </div>
+
+      <div class="final" id="finalScreen">
+        <h2>Résultat final</h2>
+        <div class="score-circle" id="scoreCircle">
+          <div class="score-inner" id="scorePercent">0%</div>
+        </div>
+        <div class="final-score" id="finalScore"></div>
+        <div class="final-message" id="finalMessage"></div>
+        <button class="restart-btn" onclick="restartQuiz()">Recommencer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "Quel est le rôle principal d’un agent APS ?",
+        options: ["Intervenir en incendie", "Surveillance et prévention", "Éteindre un feu", "Gérer les secours"],
+        correct: 1,
+        explanation: "L’APS assure principalement la surveillance, la prévention et la protection des biens et des personnes."
+      },
+      {
+        question: "En cas d’incendie, quelle est la première action à faire ?",
+        options: ["Donner l’alerte", "Courir", "Ouvrir les fenêtres", "Ignorer la fumée"],
+        correct: 0,
+        explanation: "La priorité est de donner l’alerte selon la procédure en place."
+      },
+      {
+        question: "Lors d’une ronde, l’agent APS doit :",
+        options: ["Dormir", "Observer et signaler les anomalies", "Rester assis", "Couper les caméras"],
+        correct: 1,
+        explanation: "Une ronde sert à observer les lieux et signaler toute anomalie."
+      },
+      {
+        question: "Un agent APS peut-il se substituer à la police ?",
+        options: ["Oui toujours", "Oui si la nuit", "Non", "Oui si uniforme"],
+        correct: 2,
+        explanation: "L’APS ne remplace jamais les forces de l’ordre."
+      },
+      {
+        question: "Quel document permet de consigner les événements sur un site ?",
+        options: ["Le registre de main courante", "Le livret scolaire", "La facture", "Le contrat de travail"],
+        correct: 0,
+        explanation: "La main courante sert à tracer les événements et actions."
+      },
+      {
+        question: "Que faire face à une personne agressive ?",
+        options: ["Répondre violemment", "Garder son calme et appliquer la procédure", "Partir sans rien dire", "Filmer et publier"],
+        correct: 1,
+        explanation: "L’agent doit garder son calme et respecter les consignes."
+      },
+      {
+        question: "Le contrôle d’accès sert à :",
+        options: ["Retarder tout le monde", "Limiter l’accès aux personnes autorisées", "Fermer les toilettes", "Faire la circulation"],
+        correct: 1,
+        explanation: "Le contrôle d’accès permet de sécuriser les entrées."
+      },
+      {
+        question: "Face à un colis abandonné, il faut :",
+        options: ["L’ouvrir", "Le déplacer", "Appliquer la procédure de sécurité", "Le jeter"],
+        correct: 2,
+        explanation: "Il ne faut ni le manipuler ni l’ouvrir ; il faut suivre la procédure."
+      },
+      {
+        question: "Quelle qualité est indispensable pour un APS ?",
+        options: ["La discrétion professionnelle", "L’improvisation", "La colère", "L’indifférence"],
+        correct: 0,
+        explanation: "La discrétion fait partie des qualités essentielles de l’APS."
+      },
+      {
+        question: "Un bon compte rendu doit être :",
+        options: ["Flou", "Factuel, daté et précis", "Inventé", "Très court sans détails"],
+        correct: 1,
+        explanation: "Un compte rendu doit être objectif, clair et précis."
+      },
+      {
+        question: "L’objectif global d’une mission APS est :",
+        options: ["Créer un conflit", "Assurer la sécurité et prévenir les risques", "Faire peur au public", "Remplacer les pompiers"],
+        correct: 1,
+        explanation: "La mission APS vise à sécuriser les personnes et les biens."
+      },
+      {
+        question: "Que signifie APS ?",
+        options: ["Agent de Prévention et de Sécurité", "Agent Privé Sanitaire", "Assistant de Protection Sociale", "Alerte Protection Secours"],
+        correct: 0,
+        explanation: "APS signifie Agent de Prévention et de Sécurité."
+      },
+      {
+        question: "Un agent APS doit porter son uniforme :",
+        options: ["Seulement s’il veut", "Selon les consignes de l’employeur", "Jamais", "Uniquement en été"],
+        correct: 1,
+        explanation: "L’uniforme dépend des consignes de l’employeur et du site."
+      },
+      {
+        question: "Lors d’une ronde, il faut vérifier :",
+        options: ["Les issues de secours", "Le téléphone personnel", "Les réseaux sociaux", "La météo uniquement"],
+        correct: 0,
+        explanation: "Les issues de secours doivent être accessibles et contrôlées."
+      },
+      {
+        question: "En cas d’anomalie, l’APS doit :",
+        options: ["La cacher", "La signaler", "L’oublier", "Attendre le lendemain"],
+        correct: 1,
+        explanation: "Toute anomalie doit être signalée rapidement."
+      },
+      {
+        question: "L’agent APS travaille principalement dans :",
+        options: ["La prévention", "La chirurgie", "Le transport aérien uniquement", "L’enseignement"],
+        correct: 0,
+        explanation: "Le métier APS est centré sur la prévention et la sécurité."
+      },
+      {
+        question: "En présence d’un visiteur, l’APS doit :",
+        options: ["L’ignorer", "L’accueillir selon les procédures", "Le faire fuir", "L’insulter"],
+        correct: 1,
+        explanation: "L’accueil fait souvent partie du rôle de l’APS selon le site."
+      },
+      {
+        question: "Une issue de secours doit être :",
+        options: ["Bloquée", "Accessible", "Cachée", "Fermée à clé sans contrôle"],
+        correct: 1,
+        explanation: "Une issue de secours doit rester accessible."
+      },
+      {
+        question: "Que faire si l’alarme incendie se déclenche ?",
+        options: ["La couper sans vérifier", "Appliquer les consignes de sécurité", "Quitter le site sans prévenir", "Téléphoner à un ami"],
+        correct: 1,
+        explanation: "Il faut appliquer immédiatement les consignes prévues."
+      },
+      {
+        question: "Une ronde permet de :",
+        options: ["Prévenir les risques", "Dormir", "Éviter de travailler", "Contourner les règles"],
+        correct: 0,
+        explanation: "La ronde est un outil de prévention."
+      },
+      {
+        question: "L’APS doit avoir un comportement :",
+        options: ["Professionnel", "Agressif", "Négligent", "Provocateur"],
+        correct: 0,
+        explanation: "Le professionnalisme est indispensable."
+      },
+      {
+        question: "Le badge visiteur sert à :",
+        options: ["Décorer", "Identifier les visiteurs", "Remplacer la carte bancaire", "Faire joli"],
+        correct: 1,
+        explanation: "Le badge permet d’identifier les personnes autorisées."
+      },
+      {
+        question: "Que faire si une porte d’accès sensible reste ouverte ?",
+        options: ["Ne rien faire", "Signaler et sécuriser selon la procédure", "Laisser ouverte", "Enlever la serrure"],
+        correct: 1,
+        explanation: "Une zone sensible doit être sécurisée immédiatement."
+      },
+      {
+        question: "L’APS doit connaître :",
+        options: ["Les procédures du site", "Les recettes de cuisine", "Le programme TV", "Les jeux vidéo"],
+        correct: 0,
+        explanation: "Les procédures sont essentielles pour bien réagir."
+      },
+      {
+        question: "En cas de doute sur une situation, il faut :",
+        options: ["Improviser", "Alerter son responsable", "Ignorer", "Mentir"],
+        correct: 1,
+        explanation: "En cas de doute, il vaut mieux alerter."
+      },
+      {
+        question: "La prévention consiste à :",
+        options: ["Agir avant qu’un incident n’arrive", "Réparer après coup seulement", "Dormir sur place", "Empêcher les clients d’entrer"],
+        correct: 0,
+        explanation: "Prévenir, c’est anticiper les risques."
+      },
+      {
+        question: "Un extincteur sert à :",
+        options: ["Éclairer", "Éteindre un début d’incendie", "Ouvrir les portes", "Faire du bruit"],
+        correct: 1,
+        explanation: "Un extincteur sert à combattre un départ de feu si cela est possible sans danger."
+      },
+      {
+        question: "Que doit faire un APS après un incident ?",
+        options: ["Un compte rendu", "Rentrer chez lui", "Supprimer les preuves", "Couper l’électricité sans raison"],
+        correct: 0,
+        explanation: "Il doit consigner l’incident dans un rapport ou une main courante."
+      },
+      {
+        question: "Le sang-froid est important pour :",
+        options: ["Réagir efficacement", "Paniquer plus vite", "Ignorer les consignes", "Parler fort"],
+        correct: 0,
+        explanation: "Le sang-froid aide à bien gérer les situations."
+      },
+      {
+        question: "Un agent APS doit respecter :",
+        options: ["Les consignes et la réglementation", "Seulement son humeur", "Aucune procédure", "Les ordres des visiteurs"],
+        correct: 0,
+        explanation: "Le respect des consignes est fondamental."
+      },
+      {
+        question: "La surveillance vidéo aide à :",
+        options: ["Prévenir et constater certaines anomalies", "Jouer", "Dormir", "Éviter les rondes pour toujours"],
+        correct: 0,
+        explanation: "La vidéosurveillance est un outil d’aide à la sécurité."
+      },
+      {
+        question: "Une alarme sert à :",
+        options: ["Alerter d’un danger", "Faire joli", "Décorer le mur", "Ouvrir les fenêtres"],
+        correct: 0,
+        explanation: "Une alarme sert à signaler un danger ou un incident."
+      },
+      {
+        question: "Si une personne force un accès, l’APS doit :",
+        options: ["Observer, alerter et appliquer la procédure", "Laisser faire", "Partir", "Crier sans raison"],
+        correct: 0,
+        explanation: "Il faut appliquer les consignes et sécuriser la situation."
+      },
+      {
+        question: "L’agent APS doit être :",
+        options: ["Vigilant", "Distrait", "Agressif", "Imprudent"],
+        correct: 0,
+        explanation: "La vigilance est une qualité clé du métier."
+      },
+      {
+        question: "Un poste de sécurité doit rester :",
+        options: ["Organisé et fonctionnel", "En désordre", "Fermé sans raison", "Accessible au public sans contrôle"],
+        correct: 0,
+        explanation: "Un poste bien tenu permet de mieux travailler."
+      },
+      {
+        question: "Le respect des consignes incendie permet :",
+        options: ["De mieux protéger les personnes", "De perdre du temps", "D’éviter les exercices", "De fermer le site définitivement"],
+        correct: 0,
+        explanation: "Les consignes incendie protègent les occupants."
+      },
+      {
+        question: "Que faire face à une intrusion ?",
+        options: ["Appliquer la procédure et alerter", "Inviter l’intrus à rester", "Ne rien noter", "Couper les caméras"],
+        correct: 0,
+        explanation: "Il faut suivre la procédure prévue en cas d’intrusion."
+      },
+      {
+        question: "L’APS contribue à :",
+        options: ["La sécurité du site", "La décoration du bâtiment", "La vente des produits", "La cuisine du restaurant"],
+        correct: 0,
+        explanation: "Sa mission est liée à la sécurité."
+      },
+      {
+        question: "Une anomalie technique doit être :",
+        options: ["Signalée", "Cachée", "Ignorée", "Détruite"],
+        correct: 0,
+        explanation: "Une anomalie doit être remontée rapidement."
+      },
+      {
+        question: "Le respect du public par l’APS est :",
+        options: ["Essentiel", "Inutile", "Secondaire", "Interdit"],
+        correct: 0,
+        explanation: "Le respect et la courtoisie sont importants dans le métier."
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let timeLeft = 60;
+    let timer = null;
+    let answered = false;
+
+    const questionEl = document.getElementById("question");
+    const answersEl = document.getElementById("answers");
+    const resultEl = document.getElementById("result");
+    const explanationEl = document.getElementById("explanation");
+    const timerValueEl = document.getElementById("timerValue");
+    const timerPillEl = document.getElementById("timerPill");
+    const progressEl = document.getElementById("progress");
+    const timeBarEl = document.getElementById("timeBar");
+    const quizScreen = document.getElementById("quizScreen");
+    const finalScreen = document.getElementById("finalScreen");
+    const finalScoreEl = document.getElementById("finalScore");
+    const finalMessageEl = document.getElementById("finalMessage");
+    const scorePercentEl = document.getElementById("scorePercent");
+    const scoreCircleEl = document.getElementById("scoreCircle");
+
+    function updateTimerUI() {
+      timerValueEl.textContent = timeLeft + "s";
+      timerPillEl.textContent = timeLeft + "s";
+      const percent = (timeLeft / 60) * 100;
+      timeBarEl.style.width = percent + "%";
+    }
+
+    function loadQuestion() {
+      clearInterval(timer);
+      answered = false;
+      timeLeft = 60;
+      updateTimerUI();
+      resultEl.textContent = "";
+      resultEl.className = "result";
+      explanationEl.textContent = "";
+
+      const q = questions[currentQuestion];
+      progressEl.textContent = `Question ${currentQuestion + 1} / ${questions.length}`;
+      questionEl.textContent = q.question;
+      answersEl.innerHTML = "";
+
+      q.options.forEach((option, index) => {
+        const row = document.createElement("div");
+        row.className = "answer-row";
+
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.innerHTML = `${String.fromCharCode(65 + index)}. ${option}`;
+        btn.onclick = () => checkAnswer(index);
+
+        const side = document.createElement("div");
+        side.className = "answer-side";
+        side.id = `side-${index}`;
+
+        row.appendChild(btn);
+        row.appendChild(side);
+        answersEl.appendChild(row);
+      });
+
+      startTimer();
+    }
+
+    function startTimer() {
+      timer = setInterval(() => {
+        timeLeft--;
+        updateTimerUI();
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          if (!answered) {
+            handleTimeout();
+          }
+        }
+      }, 1000);
+    }
+
+    function showCorrectAnswerSide(correctIndex) {
+      const side = document.getElementById(`side-${correctIndex}`);
+      if (side) {
+        side.classList.add("show");
+        side.innerHTML = `<span class="arrow">▶</span><span>✅ Bonne réponse</span>`;
+      }
+    }
+
+    function disableAllButtons() {
+      document.querySelectorAll(".answer-btn").forEach(btn => btn.disabled = true);
+    }
+
+    function checkAnswer(selectedIndex) {
+      if (answered) return;
+      answered = true;
+      clearInterval(timer);
+
+      const q = questions[currentQuestion];
+      const buttons = document.querySelectorAll(".answer-btn");
+
+      buttons.forEach((btn, index) => {
+        btn.disabled = true;
+
+        if (index === q.correct) {
+          btn.classList.add("correct");
+        }
+
+        if (index === selectedIndex && index !== q.correct) {
+          btn.classList.add("wrong");
+        }
+      });
+
+      showCorrectAnswerSide(q.correct);
+
+      if (selectedIndex === q.correct) {
+        score++;
+        resultEl.textContent = "✅ Bonne réponse";
+        resultEl.classList.add("good");
+      } else {
+        resultEl.textContent = "❌ Mauvaise réponse";
+        resultEl.classList.add("bad");
+      }
+
+      explanationEl.textContent = q.explanation;
+      setTimeout(autoAdvance, 2000);
+    }
+
+    function handleTimeout() {
+      answered = true;
+      disableAllButtons();
+
+      const q = questions[currentQuestion];
+      const buttons = document.querySelectorAll(".answer-btn");
+
+      buttons.forEach((btn, index) => {
+        if (index === q.correct) {
+          btn.classList.add("correct");
+        } else {
+          btn.classList.add("neutral");
+        }
+      });
+
+      showCorrectAnswerSide(q.correct);
+
+      resultEl.textContent = "⏰ Temps écoulé : réponse comptée comme mauvaise";
+      resultEl.classList.add("bad");
+      explanationEl.textContent = q.explanation;
+      setTimeout(autoAdvance, 2000);
+    }
+
+    function autoAdvance() {
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showFinalScore();
+      }
+    }
+
+    function showFinalScore() {
+      quizScreen.style.display = "none";
+      finalScreen.style.display = "block";
+
+      const percent = Math.round((score / questions.length) * 100);
+
+      finalScoreEl.textContent = `Score : ${score} / ${questions.length}`;
+      scorePercentEl.textContent = `${percent}%`;
+      scoreCircleEl.style.background = `conic-gradient(#25bf53 ${percent * 3.6}deg, #e5e7eb 0deg)`;
+
+      if (percent >= 80) {
+        finalMessageEl.textContent = "Très bon résultat. Cette présentation est idéale pour démontrer un outil moderne de formation APS.";
+      } else if (percent >= 60) {
+        finalMessageEl.textContent = "Bon résultat. Quelques révisions complémentaires permettront d’améliorer encore la performance.";
+      } else {
+        finalMessageEl.textContent = "Résultat insuffisant. L’élève doit poursuivre son entraînement pour mieux maîtriser les fondamentaux APS.";
+      }
+    }
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      timeLeft = 60;
+      answered = false;
+      finalScreen.style.display = "none";
+      quizScreen.style.display = "block";
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
